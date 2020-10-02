@@ -64,6 +64,7 @@ Vagrant.configure("2") do |config|
   # Enable provisioning with a shell script. Additional provisioners such as
   # Ansible, Chef, Docker, Puppet and Salt are also available. Please see the
   # documentation for more information about their specific syntax and use.
-  config.vm.provision "shell", path: "startup/install_neo4j.sh"
+  config.vm.provision "Neo4J", type:"shell", path: "startup/install_neo4j.sh"
+  config.vm.provision "Python", type:"shell", path: "startup/install_python.sh"
 
 end

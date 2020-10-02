@@ -1,3 +1,7 @@
+# ignore everything in output except the gitkeep
+output/[^(.gitkeep)]*
+
+# general tools
 .vagrant
 .terraform
 
