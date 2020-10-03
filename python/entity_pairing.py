@@ -8,6 +8,20 @@ nlp = en_core_web_sm.load()
 
 neuralcoref.add_to_pipe(nlp)
 
+def filter_spans(spans):
+    # Filter a sequence of spans so they don't contain overlaps
+    # For spaCy 2.1.4+: this function is available as spacy.util.filter_spans()
+    get_sort_key = lambda span: (span.end - span.start, -span.start)
+    sorted_spans = sorted(spans, key=get_sort_key, reverse=True)
+    result = []
+    seen_tokens = set()
+    for span in sorted_spans:
+        # Check for end - 1 here because boundaries are inclusive
+        if span.start not in seen_tokens and span.end - 1 not in seen_tokens:
+            result.append(span)
+        seen_tokens.update(range(span.start, span.end))
+    result = sorted(result, key=lambda span: span.start)
+    return result
 
 def get_entity_pairs(text, coref=True):
     # preprocess text
@@ -49,7 +63,7 @@ def get_entity_pairs(text, coref=True):
     for sent in sentences:
         sent = nlp(sent)
         spans = list(sent.ents) + list(sent.noun_chunks)  # collect nodes
-        spans = spacy.util.filter_spans(spans)
+        spans = filter_spans(spans)
         with sent.retokenize() as retokenizer:
             [retokenizer.merge(span, attrs={'tag': span.root.tag,
                                             'dep': span.root.dep}) for span in spans]
@@ -90,3 +104,9 @@ def get_entity_pairs(text, coref=True):
     print('Entity pairs extracted:', str(len(ent_pairs)))
 
     return pairs
+
+wiki_data = pd.read_csv('output/out.csv')
+
+pairs = get_entity_pairs(wiki_data['text'][0])
+
+print(pairs.head())
