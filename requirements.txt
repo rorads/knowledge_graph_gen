@@ -1,3 +1,5 @@
 tqdm
 pandas
 wikipedia-api
+spacy
+neuralcoref
